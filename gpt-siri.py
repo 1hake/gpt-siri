@@ -1,4 +1,3 @@
-import logging
 import pyaudio
 import wave
 import os
@@ -16,7 +15,7 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
-RECORD_SECONDS = 4
+RECORD_SECONDS = 2.5
 WAVE_OUTPUT_FILENAME = "output.wav"
 MP3_OUTPUT_FILENAME = "output.mp3"
 
