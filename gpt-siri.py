@@ -110,7 +110,7 @@ def get_gpt4_response(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "Tu es un assistant vocal, tes réponses devront etre courtes et claires. Parle comme si tu parlais à l'oral. Ne répond que sous forme de texte, pas de markdown, pas de code, pas de liens."},
             {"role": "user", "content": prompt}
         ]
     )
