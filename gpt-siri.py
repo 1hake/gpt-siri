@@ -6,7 +6,6 @@ import openai
 from google.cloud import texttospeech
 from google.cloud import speech
 import io
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import socket
 import traceback
