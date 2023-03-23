@@ -1,0 +1,5 @@
+*.json
+*.env
+*.wav
+*.mp3
+/venv

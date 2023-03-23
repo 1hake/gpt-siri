@@ -27,14 +27,26 @@ You need to set up the 3 following third party services:
 Follow this [tutorial] (https://cloud.google.com/sdk/docs/install-sdk)
 
 
-# Run the project
+# Project setup
+Copy the `.env.example` file to `.env` and fill the variables:
 ```bash
+OPENAI_API_KEY=your-key
+GOOGLE_APPLICATION_CREDENTIALS=key.json. # path to your service account json key
+```
+
+Then run:
+```bash
+brew install portaudio
 python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.py
-export OPENAI_API_KEY=your-key
-export GOOGLE_APPLICATION_CREDENTIALS=key.json. # path to your service account json key
+```
+
+# Run the project
+```bash
+source venv/bin/activate
+export $(cat .env | grep "^[^#]" | xargs)  # set up env var from .env
 python gpt-siri.py
 ```
 
-Wait for the `recording` message to talk and sound on ;) 
+Wait for the `recording` message to talk and sound on ;)
