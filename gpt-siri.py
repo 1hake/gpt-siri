@@ -7,6 +7,8 @@ from google.cloud import texttospeech
 from google.cloud import speech
 import io
 import pygame
+import keyboard
+import pyperclip
 
 API_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -15,7 +17,7 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
-RECORD_SECONDS = 2.5
+RECORD_SECONDS = 20
 WAVE_OUTPUT_FILENAME = "output.wav"
 MP3_OUTPUT_FILENAME = "output.mp3"
 
@@ -39,11 +41,16 @@ def stt_gcp():
         )]
     )
 
+    clipboard_content = pyperclip.paste()
+    print(clipboard_content)
+
     response = client.recognize(config=config, audio=audio)
     for result in response.results:
-        owc(u'\nYou ask:\n{}'.format(result.alternatives[0].transcript))
+        prompt = result.alternatives[0].transcript
+        prompt += f':\n{clipboard_content}'
+        owc(u'\nYou ask:\n{}'.format(prompt))
         owc("Waiting for ChatGPT to respond...")
-        chat = get_gpt4_response(result.alternatives[0].transcript)
+        chat = get_gpt4_response(prompt)
         owc(f'\nChatGPT says:\n {chat}')
         texttospeech_gcp(chat)
 
@@ -62,7 +69,7 @@ def texttospeech_gcp(text):
     # Select the type of audio file you want returned
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3,
-        speaking_rate=1.25
+        speaking_rate=1.4
     )
     # Perform the text-to-speech request on the text input with the selected
     # voice parameters and audio file type
@@ -73,8 +80,6 @@ def texttospeech_gcp(text):
     with open(MP3_OUTPUT_FILENAME, "wb") as out:
         # Write the response to the output file.
         out.write(response.audio_content)
-        owc(f'\nAudio content written to file {MP3_OUTPUT_FILENAME}')
-
 
 def record() -> None:
     p = pyaudio.PyAudio()
@@ -85,24 +90,27 @@ def record() -> None:
                     frames_per_buffer=CHUNK)
 
     owc("* recording")
+    owc("Press space to stop recording")
 
     frames = []
     for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
         data = stream.read(CHUNK)
         frames.append(data)
+        if keyboard.is_pressed('space'):
+            break
     owc("* done recording")
 
+    # Properly stop and close the stream
     stream.stop_stream()
     stream.close()
     p.terminate()
 
-    wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-    wf.setnchannels(CHANNELS)
-    wf.setsampwidth(p.get_sample_size(FORMAT))
-    wf.setframerate(RATE)
-    wf.writeframes(b''.join(frames))
-    wf.close()
-
+    # Save the recorded data to a WAV file
+    with wave.open(WAVE_OUTPUT_FILENAME, 'wb') as wf:
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(p.get_sample_size(FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(b''.join(frames))
 
 # Send the prompt to GPT-4 and get the response
 def get_gpt4_response(prompt):
@@ -127,6 +135,7 @@ def play_audio_from_mp3():
 
 def owc(text, filepath=filepath):
     text = '\n' + text + '\n'
+    print(text)
     f = open(filepath, 'a')
     f.write(text)
     f.close()
