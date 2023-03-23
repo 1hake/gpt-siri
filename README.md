@@ -49,4 +49,11 @@ export $(cat .env | grep "^[^#]" | xargs)  # set up env var from .env
 python gpt-siri.py
 ```
 
-Wait for the `recording` message to talk and sound on ;)
+Wait for the `recording` message to talk (sound on !) and... enjoy :)
+
+
+# Install it as a raycast command script (optional)
+- Install [raycast](https://raycast.com/)
+- Create a new bash script command named voice-gpt with raycast in the root directory of the repo
+- Copy the content of `voice-gpt.sh.example` into the `voice-gpt.sh` file created by raycast
+- Create a shortcut in raycast to run the command easily :)
