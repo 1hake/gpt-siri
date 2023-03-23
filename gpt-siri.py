@@ -1,15 +1,14 @@
+import logging
 import pyaudio
 import wave
 import os
-
 import openai
-
 from google.cloud import texttospeech
 from google.cloud import speech
 import io
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import pygame
 
-# Google speech api
-GOOGLE_SPEECH_URL = 'http://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium'
 API_URL = "https://api.openai.com/v1/chat/completions"
 
 # Microphone stream config.
@@ -17,7 +16,7 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
-RECORD_SECONDS = 3
+RECORD_SECONDS = 4
 WAVE_OUTPUT_FILENAME = "output.wav"
 MP3_OUTPUT_FILENAME = "output.mp3"
 
@@ -41,11 +40,10 @@ def stt_gcp():
     )
 
     response = client.recognize(config=config, audio=audio)
-    print("Done\n")
     for result in response.results:
-        print(u'Transcript:\n{}'.format(result.alternatives[0].transcript))
+        print(u'\nYou ask:\n{}'.format(result.alternatives[0].transcript))
         chat = get_gpt4_response(result.alternatives[0].transcript)
-        print(chat)
+        print('\nChatGPT says:\n', chat)
         texttospeech_gcp(chat)
 
 
@@ -74,7 +72,7 @@ def texttospeech_gcp(text):
     with open(MP3_OUTPUT_FILENAME, "wb") as out:
         # Write the response to the output file.
         out.write(response.audio_content)
-        print(f'Audio content written to file {MP3_OUTPUT_FILENAME}')
+        print(f'\nAudio content written to file {MP3_OUTPUT_FILENAME}')
 
 
 def record() -> None:
@@ -82,7 +80,6 @@ def record() -> None:
     stream = p.open(format=FORMAT,
                     channels=CHANNELS,
                     rate=RATE,
-                    output=True,
                     input=True,
                     frames_per_buffer=CHUNK)
 
@@ -119,7 +116,6 @@ def get_gpt4_response(prompt):
 
 
 def play_audio_from_mp3():
-    import pygame
     pygame.mixer.init()
     pygame.mixer.music.load(MP3_OUTPUT_FILENAME)
     pygame.mixer.music.play()
