@@ -1,3 +1,4 @@
+import sys
 import pyaudio
 import wave
 import os
@@ -7,6 +8,8 @@ from google.cloud import speech
 import io
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
+import socket
+import traceback
 
 API_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -19,6 +22,7 @@ RECORD_SECONDS = 2.5
 WAVE_OUTPUT_FILENAME = "output.wav"
 MP3_OUTPUT_FILENAME = "output.mp3"
 
+filepath = sys.argv[1]
 
 def stt_gcp():
     """Transcribe the given audio file."""
@@ -40,9 +44,10 @@ def stt_gcp():
 
     response = client.recognize(config=config, audio=audio)
     for result in response.results:
-        print(u'\nYou ask:\n{}'.format(result.alternatives[0].transcript))
+        owc(u'\nYou ask:\n{}'.format(result.alternatives[0].transcript))
+        owc("Waiting for ChatGPT to respond...")
         chat = get_gpt4_response(result.alternatives[0].transcript)
-        print('\nChatGPT says:\n', chat)
+        owc(f'\nChatGPT says:\n {chat}')
         texttospeech_gcp(chat)
 
 
@@ -71,7 +76,7 @@ def texttospeech_gcp(text):
     with open(MP3_OUTPUT_FILENAME, "wb") as out:
         # Write the response to the output file.
         out.write(response.audio_content)
-        print(f'\nAudio content written to file {MP3_OUTPUT_FILENAME}')
+        owc(f'\nAudio content written to file {MP3_OUTPUT_FILENAME}')
 
 
 def record() -> None:
@@ -82,12 +87,13 @@ def record() -> None:
                     input=True,
                     frames_per_buffer=CHUNK)
 
-    print("* recording")
+    owc("* recording")
+
     frames = []
     for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
         data = stream.read(CHUNK)
         frames.append(data)
-    print("* done recording")
+    owc("* done recording")
 
     stream.stop_stream()
     stream.close()
@@ -122,11 +128,17 @@ def play_audio_from_mp3():
         continue
 
 
+def owc(text, filepath=filepath):
+    text = '\n' + text + '\n'
+    f = open(filepath, 'a')
+    f.write(text)
+    f.close()
+
+
 def main():
     record()
     stt_gcp()
     play_audio_from_mp3()
-
 
 if __name__ == '__main__':
     main()
