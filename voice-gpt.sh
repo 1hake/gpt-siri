@@ -20,7 +20,7 @@ while IFS="=" read -r key value; do
     cmd+=" $key=$value"
 done < $(pwd)/.env
 # Add the Python script command to the end
-cmd+=" python ~/Code/perso/gpt-siri/gpt-siri.py $filepath &"
+cmd+=" python $(pwd)/gpt-siri.py $filepath &"
 # Run the constructed command
 eval "$cmd"
 
