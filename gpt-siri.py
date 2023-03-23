@@ -7,8 +7,6 @@ from google.cloud import texttospeech
 from google.cloud import speech
 import io
 import pygame
-import socket
-import traceback
 
 API_URL = "https://api.openai.com/v1/chat/completions"
 
