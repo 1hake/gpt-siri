@@ -9,6 +9,7 @@ import io
 import pygame
 import keyboard
 import pyperclip
+import re
 
 API_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -21,7 +22,21 @@ RECORD_SECONDS = 20
 WAVE_OUTPUT_FILENAME = "output.wav"
 MP3_OUTPUT_FILENAME = "output.mp3"
 
+
+"""
+- selectionne mode automator 
+- rentre une commande audio 
+- ecris un prompt avant cette commande qui dit "ecris un script qui fait ceci"
+- parse la reponse de gpt pour extraire le code 
+- execute le code
+- enregistre le resultat dans un fichier
+"""
+
 filepath = sys.argv[1]
+mode = ''
+if (len(sys.argv) > 2):
+    mode = sys.argv[2]
+    
 
 def stt_gcp():
     """Transcribe the given audio file."""
@@ -30,7 +45,7 @@ def stt_gcp():
     with io.open(WAVE_OUTPUT_FILENAME, 'rb') as audio_file:
         content = audio_file.read()
         audio = speech.RecognitionAudio(content=content)
-
+ 
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=16000,
@@ -40,18 +55,35 @@ def stt_gcp():
             boost=0
         )]
     )
-
-    clipboard_content = pyperclip.paste()
-    print(clipboard_content)
+    clipboard_content = ''
+    if mode == 'c':
+        clipboard_content = pyperclip.paste()
+        print(clipboard_content)
 
     response = client.recognize(config=config, audio=audio)
     for result in response.results:
         prompt = result.alternatives[0].transcript
-        prompt += f':\n{clipboard_content}'
+        if mode == 'c':
+            prompt += f':\n{clipboard_content}'
+        if mode == 'a':
+            automator_content = "Écris un script Applescript qui realise au mieux la demande suivant. Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome avec la page suivante: https://www.google.com/search?q= et tape la demande dans la barre de recherche de maniere pertinente. Repond juste un bloc de code sans explication."
+            prompt = f'{automator_content}:\n{prompt}'
+            
+
+
         owc(u'\nYou ask:\n{}'.format(prompt))
         owc("Waiting for ChatGPT to respond...")
         chat = get_gpt4_response(prompt)
         owc(f'\nChatGPT says:\n {chat}')
+        if mode == 'a':
+            #applescript = re.search(regex, chat).group().strip("```")
+            #owc(f"-------------------------------------\n{applescript} \n-------------------------------------\n")
+            # execute applescript
+            chat = chat.replace('end tell', '\nend tell\n')
+            owc(f"-------------------------------------\n{chat} \n-------------------------------------\n")
+            os.system(f'osascript -e "{chat}"')
+            
+            
         texttospeech_gcp(chat)
 
 
@@ -118,7 +150,7 @@ def get_gpt4_response(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "Tu es un assistant vocal, tes réponses devront etre courtes et claires. Parle comme si tu parlais à l'oral. Ne répond que sous forme de texte, pas de markdown, pas de code, pas de liens."},
+            {"role": "system", "content": "Tu parle en français"},
             {"role": "user", "content": prompt}
         ]
     )
@@ -130,6 +162,9 @@ def play_audio_from_mp3():
     pygame.mixer.music.load(MP3_OUTPUT_FILENAME)
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy() == True:
+        if keyboard.is_pressed('space'):
+            pygame.mixer.music.stop()
+            break
         continue
 
 

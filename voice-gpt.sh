@@ -4,7 +4,7 @@
 # @raycast.schemaVersion 1
 # @raycast.title voice-gpt
 # @raycast.mode fullOutput
-# @raycast.argument1 { "type": "text", "placeholder": "input"}
+# @raycast.argument1 { "type": "text", "placeholder": "input", "optional": true}
 
 # Optional parameters:
 # @raycast.icon 🤖
@@ -18,12 +18,12 @@ source $(pwd)/venv/bin/activate
 echo $1
 
 # Read the .env file and construct the command with environment variables
-cmd="echo '' | sudo -S "
+cmd="echo 'rubikscube' | sudo -S "
 while IFS="=" read -r key value; do
     cmd+=" $key=$value"
 done < $(pwd)/.env
 # Add the Python script command to the end
-cmd+=" python $(pwd)/gpt-siri.py $filepath &"
+cmd+=" python $(pwd)/gpt-siri.py $filepath $1 &"
 # Run the constructed command
 eval "$cmd"
 
