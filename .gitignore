@@ -3,4 +3,4 @@
 *.wav
 *.mp3
 /venv
-applescript.txt
+*.txt

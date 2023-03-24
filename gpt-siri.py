@@ -38,7 +38,7 @@ filepath = sys.argv[1]
 mode = ''
 if (len(sys.argv) > 2):
     mode = sys.argv[2]
-    
+
 
 def stt_gcp():
     """Transcribe the given audio file."""
@@ -47,7 +47,7 @@ def stt_gcp():
     with io.open(WAVE_OUTPUT_FILENAME, 'rb') as audio_file:
         content = audio_file.read()
         audio = speech.RecognitionAudio(content=content)
- 
+
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=16000,
@@ -70,7 +70,7 @@ def stt_gcp():
         if mode == 'a':
             automator_content = "Écris un script Applescript qui realise au mieux la demande suivante. Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome et lance un recherche pertinente pour repondre a la demande.Si on te demande d'ouvrir un dossier ouvre le dans le Finder. Si on te demande de faire un calcul, ouvre la calculette.Repond juste un bloc de code sans explication et sans indentation pour que je puisse l'éxecuter directement."
             prompt = f'{automator_content}:\n{prompt}'
-            
+
 
 
         owc(u'\nYou ask:\n{}'.format(prompt))
@@ -78,26 +78,11 @@ def stt_gcp():
         chat = get_gpt4_response(prompt)
         owc(f'\nChatGPT says:\n {chat}')
         if mode == 'a':
-            #applescript = re.search(regex, chat).group().strip("```")
-            #owc(f"-------------------------------------\n{applescript} \n-------------------------------------\n")
-            # execute applescript
-            # chat = chat.replace('end tell', '\nend tell\n')
-            owc(f"-------------------------------------\n{chat} \n-------------------------------------\n")
-            applescript_code = f'''{chat}'''
-            # write chat content in a file
-            with open('applescript.txt', 'w') as f:
-                f.write(applescript_code)
-                # execute applescript
-                script = applescript.AppleScript(applescript_code)
-                script.run()
-
-            
-
-
-           
-            
-            
-            
+            owc(f"Parsed Apple script code Is:\n"
+                f"-------------------------------------\n"
+                f"{chat} "
+                f"\n-------------------------------------\n")
+            applescript.run(chat)
         texttospeech_gcp(chat)
 
 
