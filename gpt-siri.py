@@ -84,7 +84,11 @@ def stt_gcp():
                 f"-------------------------------------\n"
                 f"{chat} "
                 f"\n-------------------------------------\n")
-            applescript.run(chat)
+            owc("Executing Apple script code...")
+            script = applescript.AppleScript(chat)
+            script.run()
+
+            
         texttospeech_gcp(chat)
 
 
