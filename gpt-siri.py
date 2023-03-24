@@ -10,6 +10,8 @@ import pygame
 import keyboard
 import pyperclip
 import re
+import applescript
+
 
 API_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -66,7 +68,7 @@ def stt_gcp():
         if mode == 'c':
             prompt += f':\n{clipboard_content}'
         if mode == 'a':
-            automator_content = "Écris un script Applescript qui realise au mieux la demande suivant. Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome avec la page suivante: https://www.google.com/search?q= et tape la demande dans la barre de recherche de maniere pertinente. Repond juste un bloc de code sans explication."
+            automator_content = "Écris un script Applescript qui realise au mieux la demande suivant. Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome avec la page suivante: https://www.google.com/search?q= et tape la demande dans la barre de recherche de maniere pertinente. Repond juste un bloc de code sans explication et sans indentation pour que je puisse l'éxecuter directement."
             prompt = f'{automator_content}:\n{prompt}'
             
 
@@ -79,9 +81,21 @@ def stt_gcp():
             #applescript = re.search(regex, chat).group().strip("```")
             #owc(f"-------------------------------------\n{applescript} \n-------------------------------------\n")
             # execute applescript
-            chat = chat.replace('end tell', '\nend tell\n')
+            # chat = chat.replace('end tell', '\nend tell\n')
             owc(f"-------------------------------------\n{chat} \n-------------------------------------\n")
-            os.system(f'osascript -e "{chat}"')
+            applescript_code = f'''{chat}'''
+            # write chat content in a file
+            with open('applescript.txt', 'w') as f:
+                f.write(applescript_code)
+                # execute applescript
+                script = applescript.AppleScript(applescript_code)
+                script.run()
+
+            
+
+
+           
+            
             
             
         texttospeech_gcp(chat)
