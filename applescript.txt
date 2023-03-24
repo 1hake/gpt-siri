@@ -1,7 +1,4 @@
 tell application "Google Chrome"
     activate
-    open location "https://www.google.com/search?q="
-    delay 1
-    keystroke "votre demande"
-    keystroke return
+    tell window 1 to make new tab with properties {URL:"https://www.google.com/search?q=meilleurs+hotels+à+paris"}
 end tell

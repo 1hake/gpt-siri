@@ -68,7 +68,7 @@ def stt_gcp():
         if mode == 'c':
             prompt += f':\n{clipboard_content}'
         if mode == 'a':
-            automator_content = "Écris un script Applescript qui realise au mieux la demande suivant. Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome avec la page suivante: https://www.google.com/search?q= et tape la demande dans la barre de recherche de maniere pertinente. Repond juste un bloc de code sans explication et sans indentation pour que je puisse l'éxecuter directement."
+            automator_content = "Écris un script Applescript qui realise au mieux la demande suivante. Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome et lance un recherche pertinente pour repondre a la demande.Si on te demande d'ouvrir un dossier ouvre le dans le Finder. Si on te demande de faire un calcul, ouvre la calculette.Repond juste un bloc de code sans explication et sans indentation pour que je puisse l'éxecuter directement."
             prompt = f'{automator_content}:\n{prompt}'
             
 
@@ -193,7 +193,8 @@ def owc(text, filepath=filepath):
 def main():
     record()
     stt_gcp()
-    play_audio_from_mp3()
+    if mode != 'a':
+        play_audio_from_mp3()
 
 if __name__ == '__main__':
     main()
