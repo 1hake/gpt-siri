@@ -68,11 +68,13 @@ def stt_gcp():
         if mode == 'c':
             prompt += f':\n{clipboard_content}'
         if mode == 'a':
-            automator_content = "Écris un script Applescript qui realise au mieux la demande suivante. " \
+            automator_content = "Tu es un développeur. Écris un script Applescript qui realise au mieux la demande suivante. Tu devras respecter les regles suivante: " \
                                 "Lorsqu'on te demande quelque chose qui necessite d'aller sur le web ouvre google chrome et " \
-                                "lance un recherche pertinente pour repondre a la demande.Si on te demande d'ouvrir un dossier " \
-                                "ouvre le dans le Finder. Si on te demande de faire un calcul, ouvre la calculette." \
-                                "Repond juste un bloc de code sans explication et sans indentation pour que je puisse l'éxecuter directement."
+                                "lance un recherche pertinente pour repondre a la demande." \
+                                "Si on te demande d'ouvrir un dossier ouvre le dans le Finder. " \
+                                "Si on te demande de faire un calcul, ouvre la calculette et écris le calcul" \
+                                "Lorsque je te demande me rappeler quelque chose utilise l'application Reminders en ajoutant le sujet du rappels ainsi que la date du rappel. " \
+                                "Le code doit etre simple et ne faire qu'une seule chose. Repond juste un bloc de code sans explication et sans indentation pour que je puisse l'éxecuter directement."
             prompt = f'{automator_content}:\n{prompt}'
 
         owc(u'\nYou ask:\n{}'.format(prompt))
